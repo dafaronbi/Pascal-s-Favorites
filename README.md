@@ -1,1 +1,4 @@
-Ported code for intro to data science
+#required libaries
+Matplotlib
+Scipy
+Numpy
