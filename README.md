@@ -1,4 +1,4 @@
-#required libaries
+# required libaries
 Matplotlib
 Scipy
 Numpy
