@@ -3,9 +3,24 @@ import tkinter as tk
 import numpy as np
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
+import math
+import scipy.stats as stats
+from scipy.special import factorial
 
 t = np.arange(0, 3, .01)
-distributions = {"normal": 2 * np.sin(2 * np.pi * t), "t": 2 * np.sin(4 * np.pi * t), "beta": 2 * np.sin(50 * np.pi * t)}
+
+#needed variables
+mu = 0
+variance = 1
+sigma = math.sqrt(variance)
+x = np.linspace(mu - 3*sigma, mu + 3*sigma, 100)
+a = 2
+b = 2
+n, p = 5, 0.4
+df = 2.74
+mean, var, skew, kurt = stats.t.stats(df, moments='mvsk')
+
+distributions = {"normal": stats.norm.pdf(x, mu, sigma), "uniform": np.full(100,0.01), "poison": np.exp(-5)*np.power(5, t)/factorial(t),"t": stats.t.pdf(x, df), "beta": stats.beta.pdf(x,a,b, scale=100, loc=-50)}
 
 class d_player(tk.Frame):
     def __init__(self, master=None):
