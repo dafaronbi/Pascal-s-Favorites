@@ -7,20 +7,8 @@ import math
 import scipy.stats as stats
 from scipy.special import factorial
 
-t = np.arange(0, 3, .01)
-
-#needed variables
-mu = 0
-variance = 1
-sigma = math.sqrt(variance)
-x = np.linspace(mu - 3*sigma, mu + 3*sigma, 100)
-a = 2
-b = 2
-n, p = 5, 0.4
-df = 2.74
-mean, var, skew, kurt = stats.t.stats(df, moments='mvsk')
-
-distributions = {"normal": stats.norm.pdf(x, mu, sigma), "uniform": np.full(100,0.01), "poison": np.exp(-5)*np.power(5, t)/factorial(t),"t": stats.t.pdf(x, df), "beta": stats.beta.pdf(x,a,b, scale=100, loc=-50)}
+#Array of all different types of distributions
+distributions = ["normal","uniform","poison","t","beta",]
 
 class d_player(tk.Frame):
     def __init__(self, master=None):
@@ -30,20 +18,20 @@ class d_player(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        #add sidebar
-        self.sideBar = tk.Frame(self,width=150)
-        self.sideBar.pack(side="right")
-        sidebar_width = self.sideBar.winfo_width()
-        print(sidebar_width)
-
-        #add main view
+        # add main view
         self.mainView = tk.Frame(self)
         self.mainView.pack(side="left")
+
+        #add sidebar
+        self.sideBar = tk.Frame(self)
+        self.sideBar.pack(side=tk.RIGHT,fill=tk.BOTH)
+        sidebar_width = self.sideBar.winfo_width()
+
 
         #configure buttons
         for plot in distributions:
             #add to sidebar
-            button = tk.Button(self,width=sidebar_width,height=2)
+            button = tk.Button(self.sideBar)
 
             #add button text as distribution name
             button["text"] = plot
@@ -52,12 +40,12 @@ class d_player(tk.Frame):
             button["command"] = lambda plot=plot: self.switch_plot(plot)
 
             #pack buttons
-            button.pack(side="top")
+            button.pack(side="top",fill=tk.X)
 
-        self.switch_plot(list(distributions.keys())[0])
+        self.switch_plot(distributions[0])
 
-        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy,width=sidebar_width,height=2)
-        self.quit.pack(side="bottom")
+        self.quit = tk.Button(self.sideBar, text="QUIT", fg="red", command=self.master.destroy,)
+        self.quit.pack(side="bottom", fill=tk.X)
 
     def switch_plot(self,plot):
 
@@ -68,19 +56,59 @@ class d_player(tk.Frame):
 
         # add canvas for mat plot
         fig = Figure(figsize=(5, 4), dpi=100)
-        y = distributions[plot]
-        fig.add_subplot(111).plot(y)
+
+        #plot the apropriate distribution
+        if plot == "normal":
+            mu = 0
+            variance = 1
+            sigma = math.sqrt(variance)
+            x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
+            y = stats.norm.pdf(x, mu, sigma)
+            fig.add_subplot(111).plot(y)
+
+        elif plot == "uniform":
+            y = np.full(100,0.01)
+            fig.add_subplot(111).plot(y)
+
+        elif plot == "poison":
+            t = np.arange(0, 3, .01)
+            y = np.exp(-5)*np.power(5, t)/factorial(t)
+            fig.add_subplot(111).plot(y)
+
+        elif plot == "t":
+            mu = 0
+            variance = 1
+            sigma = math.sqrt(variance)
+            df = 2.74
+            x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
+            y = stats.t.pdf(x, df)
+            fig.add_subplot(111).plot(y)
+
+        elif plot == "beta":
+            mu = 0
+            variance = 1
+            sigma = math.sqrt(variance)
+            x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
+            a = 2
+            b = 2
+            y = stats.beta.pdf(x,a,b, scale=100, loc=-50)
+            fig.add_subplot(111).plot(y)
+        else:
+            t = np.arange(0, 3, .01)
+            fig.add_subplot(111).plot(np.sin(2*np.pi*t))
+
 
         canvas = FigureCanvasTkAgg(fig, master=frame)  # A tk.DrawingArea.
         canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH,expand=1)
 
-        frame.grid(row=0, column=0, sticky="nsew")
+        frame.pack(fill=tk.BOTH)
+        # frame.grid(row=0, column=0, sticky="nsew")
 
 def main():
     root = tk.Tk()
     root.wm_title("Distribution Player")
-    root.geometry("800x400")
+    root.geometry("600x400")
     player = d_player(master=root)
     player.mainloop()
 
