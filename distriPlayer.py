@@ -15,11 +15,11 @@ class d_player(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.type = "normal"
-
         #add sidebar
-        self.sideBar = tk.Frame(self)
+        self.sideBar = tk.Frame(self,width=150)
         self.sideBar.pack(side="right")
+        sidebar_width = self.sideBar.winfo_width()
+        print(sidebar_width)
 
         #add main view
         self.mainView = tk.Frame(self)
@@ -28,7 +28,7 @@ class d_player(tk.Frame):
         #configure buttons
         for plot in distributions:
             #add to sidebar
-            button = tk.Button(self.sideBar)
+            button = tk.Button(self,width=sidebar_width,height=2)
 
             #add button text as distribution name
             button["text"] = plot
@@ -39,35 +39,33 @@ class d_player(tk.Frame):
             #pack buttons
             button.pack(side="top")
 
-        #configure frames which hold plots
-        self.frames = {}
-        for plot in distributions:
+        self.switch_plot(list(distributions.keys())[0])
 
-            frame = tk.Frame(self.mainView)
-            # add canvas for mat plot
-            fig = Figure(figsize=(5, 4), dpi=100)
-            y = distributions[plot]
-            fig.add_subplot(111).plot(y)
-
-            canvas = FigureCanvasTkAgg(fig, master=frame)  # A tk.DrawingArea.
-            canvas.draw()
-            canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-            self.frames[plot] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.switch_plot("normal")
-
-        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
+        self.quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy,width=sidebar_width,height=2)
         self.quit.pack(side="bottom")
 
     def switch_plot(self,plot):
-        frame = self.frames[plot]
-        frame.tkraise()
+
+        for widget in self.mainView.winfo_children():
+            widget.destroy()
+
+        frame = tk.Frame(self.mainView)
+
+        # add canvas for mat plot
+        fig = Figure(figsize=(5, 4), dpi=100)
+        y = distributions[plot]
+        fig.add_subplot(111).plot(y)
+
+        canvas = FigureCanvasTkAgg(fig, master=frame)  # A tk.DrawingArea.
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        frame.grid(row=0, column=0, sticky="nsew")
 
 def main():
     root = tk.Tk()
     root.wm_title("Distribution Player")
+    root.geometry("800x400")
     player = d_player(master=root)
     player.mainloop()
 
