@@ -8,7 +8,10 @@ import scipy.stats as stats
 from scipy.special import factorial
 
 #Array of all different types of distributions
-distributions = ["normal","uniform","poison","t","beta",]
+distributions = ["normal","uniform","poison","beta","binomial","burr","chi-squared","exponential","extreme value",
+                 "f","gamma","generalized extreme value","generalized pareto","geometric","half normal", "hypergeometric",
+                 "lognormal", "negative binomial", "noncentral f", "noncentral t", "noncentral chi-squared", "rayleigh",
+                 "stable", "t", "discret uniform", "weibull"]
 
 class d_player(tk.Frame):
     def __init__(self, master=None):
@@ -108,7 +111,7 @@ class d_player(tk.Frame):
 def main():
     root = tk.Tk()
     root.wm_title("Distribution Player")
-    root.geometry("600x400")
+    root.geometry("600x675")
     player = d_player(master=root)
     player.mainloop()
 
