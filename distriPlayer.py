@@ -1,11 +1,14 @@
 #import needed libraries
 import tkinter as tk
+from tkinter import Checkbutton, ttk
+from tkinter.constants import BOTTOM, RIGHT
 import numpy as np
+import matplotlib as mpl
+# import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
-import scipy.stats as stats
-import matplotlib.pyplot as plt
 import math
+import scipy.stats as stats
 from scipy.special import factorial
 
 #Import specific distributions
@@ -44,38 +47,142 @@ class d_player(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.pack()
+        # self.pack()
         self.create_widgets()
 
+    def get_dist(self,event):
+        self.selected = self.dist_cb.get()
+        print(self.dist_cb.get())
+
+        # plot button
+        self.plot_button = tk.Button(text="Plot!", width=10)
+        self.plot_button.grid(column=1, row=11)
+        # self.plot_button.place(relx=0.80, rely=0.65, anchor='nw')
+        # cb_input = dist_cb.get()
+        # dist_cb.bind('<<ComboboxSelected>>', self.switch_plot)
+        self.plot_button["command"] = lambda plot=self.dist_cb.get(): self.switch_plot(plot)
+        # self.switch_plot(dist_cb.get())
+        # cb_input = dist_cb.get()
+        return self.dist_cb.get()
+
     def create_widgets(self):
-        # add main view
-        self.mainView = tk.Frame(self)
-        self.mainView.pack(side="left")
 
-        #add sidebar
-        self.sideBar = tk.Frame(self)
-        self.sideBar.pack(side=tk.RIGHT,fill=tk.BOTH)
-        sidebar_width = self.sideBar.winfo_width()
+       # add main view
+       self.mainView = tk.Frame(self)
+       self.mainView.pack(side="left")
 
+       frame = tk.Frame(self)
+       frame.pack(side=tk.RIGHT, fill=tk.BOTH)
 
-       #configure buttons
-        for plot in distributions:
-            #add to sidebar
-            button = tk.Button(self.sideBar)
+       # #add sidebar
+       # self.sideBar = tk.Frame(self)
+       # self.sideBar.pack(side=tk.RIGHT,fill=tk.BOTH)
+       # sidebar_width = self.sideBar.winfo_width()
 
-            #add button text as distribution name
-            button["text"] = plot
+       # #configure buttons
+       # for plot in distributions:
+       #     #add to sidebar
+       #     button = tk.Button(self.sideBar)
 
-            #add button command to switch the plot
-            button["command"] = lambda plot=plot: self.switch_plot(plot)
+       #     #add button text as distribution name
+       #     button["text"] = plot
 
-            #pack buttons
-            button.pack(side="top",fill=tk.X)
+       #     #add button command to switch the plot
+       #     button["command"] = lambda plot=plot: self.switch_plot(plot)
 
-        self.switch_plot(distributions[0])
+       #     #pack buttons
+       #     button.pack(side="top",fill=tk.X)
 
-        self.quit = tk.Button(self.sideBar, text="QUIT", fg="red", command=self.master.destroy,)
-        self.quit.pack(side="bottom", fill=tk.X)
+       # distribution combobox
+       self.dist = tk.Label(text="distribution")
+       self.dist.grid(column=1,row=0)
+       # self.dist.place(relx=0.70, rely=0.25, anchor='nw')
+
+       self.selected_dist = tk.StringVar()
+       # self.dist_cb = ttk.Combobox(frame, textvariable=self.selected_dist, width=20)
+       self.dist_cb = ttk.Combobox(textvariable=self.selected_dist, width=20)
+       self.dist_cb['values'] = distributions
+       self.dist_cb['state'] = 'readonly'
+
+       self.dist_cb.bind('<<ComboboxSelected>>', self.get_dist)
+       self.dist_cb.grid(column=1,row=1)
+       # self.dist_cb.pack(pady=300)
+
+       #x range
+       self.x_range = tk.Label(text="x")
+       self.x_range.grid(column=1,row=3)
+       # self.x_range.place(relx=0.70, rely=0.35, anchor='nw')
+
+       self.x_from = tk.Label(text="from")
+       self.x_from.grid(column=1,row=4)
+       # self.x_from.place(relx=0.80, rely=0.35, anchor='nw')
+       self.x_from_input = tk.Entry(width=3)
+       self.x_from_input.grid(column=2, row=4)
+       # self.x_from_input.place(relx=0.85, rely=0.35, anchor='nw')
+
+       self.x_to = tk.Label(text="to")
+       self.x_to.grid(column=3, row=4)
+       # self.x_to.place(relx=0.90, rely=0.35, anchor='nw')
+       self.x_to_input = tk.Entry(width=3)
+       self.x_to_input.grid(column=4, row=4)
+       # self.x_to_input.place(relx=0.95, rely=0.35, anchor='nw')
+
+       # parameters
+       # self.param_frame = tk.Frame(self,width=1000, height=600)
+       # self.param_frame.grid(column=1, row=6)
+       # self.param_frame.place(relx=0, rely=0.9, anchor='nw')
+
+       #delete old parameter values
+       # for widget in self.param_frame.winfo_children():
+       #     widget.destroy()
+
+       self.param_list = ['a', 'b', 'c', 'd','e','f']
+       for i,param in enumerate(self.param_list):
+           new_label = tk.Label(text=param)
+           new_label.grid(column=2*i+1, row=7)
+           new_box = tk.Entry(width=2)
+           new_box.grid(column=2*i+2, row=7)
+
+       # self.param_a = tk.Label(self.param_frame,text='a')
+       # self.param_a.pack(side=tk.LEFT)
+       # self.param_b = tk.Label(self.param_frame, text='a')
+       # self.param_b.pack(side=tk.LEFT)
+       # self.param_c = tk.Label(self.param_frame, text='a')
+       # self.param_c.pack(side=tk.LEFT)
+
+       # self.params = tk.Label(text="parameters")
+       # self.params.place(relx=0.70, rely=0.45, anchor='nw')
+       #
+       # self.param_a = tk.Label(text='a')
+       # self.param_a.place(relx=0.80, rely=0.45, anchor='nw')
+       # self.param_a_input = tk.Entry(width=3)
+       # self.param_a_input.place(relx=0.85, rely=0.45, anchor='nw')
+       #
+       # self.param_b = tk.Label(text='b')
+       # self.param_b.place(relx=0.90, rely=0.45, anchor='nw')
+       # self.param_b_input = tk.Entry(width=3)
+       # self.param_b_input.place(relx=0.95, rely=0.45, anchor='nw')
+
+       # log checkbox
+       self.is_log = tk.Label(text="log plot")
+       self.is_log.grid(column=1, row=9)
+       # self.is_log.place(relx=0.70, rely=0.55, anchor='nw')
+       self.is_log_check_var = tk.IntVar()
+       self.is_log_check = tk.Checkbutton(variable=self.is_log_check_var)
+       self.is_log_check.grid(column=1, row=10)
+       # self.is_log_check.place(relx=0.80, rely=0.55, anchor='nw')
+
+       # plot button
+       # plot_button = tk.Button(text = "Plot!", width = 10)
+       # plot_button.place(relx = 0.80, rely = 0.65, anchor = 'nw')
+       # cb_input = dist_cb.get()
+       # dist_cb.bind('<<ComboboxSelected>>', self.switch_plot)
+       # plot_button["command"] = lambda plot=cb_input: self.switch_plot(plot)
+
+       # self.switch_plot(cb_input)
+
+       # self.quit = tk.Button(self.sideBar, text="QUIT", fg="red", command=self.master.destroy,)
+       # self.quit.pack(side="bottom", fill=tk.X)
 
     def switch_plot(self,plot):
 
@@ -422,19 +529,23 @@ class d_player(tk.Frame):
             ax = fig.add_subplot(111)
             ax.plot(np.sin(2*np.pi*t))
 
-        canvas = FigureCanvasTkAgg(fig, master=frame)  # A tk.DrawingArea.
+        canvas = FigureCanvasTkAgg(fig)  # A tk.DrawingArea.
         canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH,expand=1)
+        canvas.get_tk_widget().grid(column=0,row=0)
+        # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH,expand=1)
 
-        frame.pack(fill=tk.BOTH)
+        # frame.pack(fill=tk.BOTH)
         # frame.grid(row=0, column=0, sticky="nsew")
 
 def main():
     root = tk.Tk()
     root.wm_title("Distribution Player")
-    root.geometry("600x675")
+    # root.geometry("1000x600")
+    root.columnconfigure(0,weight=1)
+    root.rowconfigure(0,weight=1)
+    root.resizable(False,False)
+    root.update_idletasks()
     player = d_player(master=root)
     player.mainloop()
-
 if __name__ == "__main__":
     main()
