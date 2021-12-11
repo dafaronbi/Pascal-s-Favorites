@@ -43,201 +43,132 @@ distributions = ["normal","uniform","poison","beta","binomial","burr","chi-squar
                  "lognormal", "negative binomial", "noncentral f", "noncentral t", "noncentral chi-squared", "rayleigh",
                  "stable", "t", "discret uniform", "weibull"]
 
+#dictionary to retreive parameter dictionary from distribution name
+d_to_param = {
+"normal":{'mu': 0, 'sigma': 0},
+"uniform":{},
+"poison":{},
+"beta":{},
+"binomial":{},
+"burr":{},
+"chi-squared":{},
+"exponential":{},
+"extreme value":{},
+"f":{},
+"gamma":{},
+"generalized extreme value":{},
+"generalized pareto":{},
+"geometric":{},
+"half normal":{},
+"hypergeometric":{},
+"lognormal":{},
+"negative binomial":{},
+"noncentral f":{},
+"noncentral t":{},
+"noncentral chi-squared":{},
+"rayleigh":{},
+"stable":{},
+"t":{},
+"discret uniform":{},
+"weibull":{}
+}
+
 class d_player(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        # self.pack()
         self.create_widgets()
 
     def get_dist(self,event):
-        self.selected = self.dist_cb.get()
+        #get selected value
+        self.dist_cb.get()
         print(self.dist_cb.get())
 
-        # plot button
+        #remove old parameter labels
+        for label in self.param_label:
+            self.param_label[label].grid_remove()
+
+        #remove old entries
+        for entry in self.param_entry:
+            self.param_entry[entry].grid_remove()
+
+        #set dictionary of parameters
+        self.param_dic = d_to_param[self.dist_cb.get()]
+
+        #update parameters gui
+        self.param_entry = {}
+        self.param_label = {}
+        for i, lab in enumerate(self.param_dic):
+            self.param_label[lab] = tk.Label(text=lab)
+            self.param_label[lab].grid(column=2 * i + 2, row=4)
+            self.param_entry[lab] = tk.Entry(width=2)
+            self.param_entry[lab].insert(0, self.param_dic[lab])
+            self.param_entry[lab].grid(column=2 * i + 3, row=4)
+
+        #creat plot button
         self.plot_button = tk.Button(text="Plot!", width=10)
-        self.plot_button.grid(column=1, row=11)
-        # self.plot_button.place(relx=0.80, rely=0.65, anchor='nw')
-        # cb_input = dist_cb.get()
-        # dist_cb.bind('<<ComboboxSelected>>', self.switch_plot)
+        self.plot_button.grid(column=1, row=6)
+
         self.plot_button["command"] = lambda plot=self.dist_cb.get(): self.switch_plot(plot)
-        # self.switch_plot(dist_cb.get())
-        # cb_input = dist_cb.get()
+
         return self.dist_cb.get()
 
     def create_widgets(self):
 
-       # add main view
-       self.mainView = tk.Frame(self)
-       self.mainView.pack(side="left")
+        # distribution combobox
+        self.dist = tk.Label(text="distribution")
+        self.dist.grid(column=1,row=0)
 
-       frame = tk.Frame(self)
-       frame.pack(side=tk.RIGHT, fill=tk.BOTH)
+        self.selected_dist = tk.StringVar()
+        self.dist_cb = ttk.Combobox(textvariable=self.selected_dist, width=20)
+        self.dist_cb['values'] = distributions
+        self.dist_cb['state'] = 'readonly'
 
-       # #add sidebar
-       # self.sideBar = tk.Frame(self)
-       # self.sideBar.pack(side=tk.RIGHT,fill=tk.BOTH)
-       # sidebar_width = self.sideBar.winfo_width()
+        self.dist_cb.bind('<<ComboboxSelected>>', self.get_dist)
+        self.dist_cb.grid(column=1,row=1)
 
-       # #configure buttons
-       # for plot in distributions:
-       #     #add to sidebar
-       #     button = tk.Button(self.sideBar)
+        #x range
+        self.x_range = tk.Label(text="x")
+        self.x_range.grid(column=1,row=3)
 
-       #     #add button text as distribution name
-       #     button["text"] = plot
+        self.x_from = tk.Label(text="from")
+        self.x_from.grid(column=2,row=3)
+        self.x_from_input = tk.Entry(width=3)
+        self.x_from_input.insert(0,0)
+        self.x_from_input.grid(column=3, row=3)
 
-       #     #add button command to switch the plot
-       #     button["command"] = lambda plot=plot: self.switch_plot(plot)
+        self.x_to = tk.Label(text="to")
+        self.x_to.grid(column=4, row=3)
+        self.x_to_input = tk.Entry(width=3)
+        self.x_to_input.insert(0,1)
+        self.x_to_input.grid(column=5, row=3)
 
-       #     #pack buttons
-       #     button.pack(side="top",fill=tk.X)
+        self.param_lbl = tk.Label(text="parameters")
+        self.param_lbl.grid(column=1,row=4)
+        #parameters
+        self.param_dic = {'a':0, 'b':0, 'c':0, 'd':0,'e':0,'f':0}
+        self.param_entry = {}
+        self.param_label = {}
+        for i, lab in enumerate(self.param_dic):
+            self.param_label[lab] = tk.Label(text=lab)
+            self.param_label[lab].grid(column=2 * i + 2, row=4)
+            self.param_entry[lab] = tk.Entry(width=2)
+            self.param_entry[lab].insert(0,self.param_dic[lab])
+            self.param_entry[lab].grid(column=2 * i + 3, row=4)
 
-       # distribution combobox
-       self.dist = tk.Label(text="distribution")
-       self.dist.grid(column=1,row=0)
-       # self.dist.place(relx=0.70, rely=0.25, anchor='nw')
-
-       self.selected_dist = tk.StringVar()
-       # self.dist_cb = ttk.Combobox(frame, textvariable=self.selected_dist, width=20)
-       self.dist_cb = ttk.Combobox(textvariable=self.selected_dist, width=20)
-       self.dist_cb['values'] = distributions
-       self.dist_cb['state'] = 'readonly'
-
-       self.dist_cb.bind('<<ComboboxSelected>>', self.get_dist)
-       self.dist_cb.grid(column=1,row=1)
-       # self.dist_cb.pack(pady=300)
-
-       #x range
-       self.x_range = tk.Label(text="x")
-       self.x_range.grid(column=1,row=3)
-       # self.x_range.place(relx=0.70, rely=0.35, anchor='nw')
-
-       self.x_from = tk.Label(text="from")
-       self.x_from.grid(column=1,row=4)
-       # self.x_from.place(relx=0.80, rely=0.35, anchor='nw')
-       self.x_from_input = tk.Entry(width=3)
-       self.x_from_input.grid(column=2, row=4)
-       # self.x_from_input.place(relx=0.85, rely=0.35, anchor='nw')
-
-       self.x_to = tk.Label(text="to")
-       self.x_to.grid(column=3, row=4)
-       # self.x_to.place(relx=0.90, rely=0.35, anchor='nw')
-       self.x_to_input = tk.Entry(width=3)
-       self.x_to_input.grid(column=4, row=4)
-       # self.x_to_input.place(relx=0.95, rely=0.35, anchor='nw')
-
-       # parameters
-       # self.param_frame = tk.Frame(self,width=1000, height=600)
-       # self.param_frame.grid(column=1, row=6)
-       # self.param_frame.place(relx=0, rely=0.9, anchor='nw')
-
-       #delete old parameter values
-       # for widget in self.param_frame.winfo_children():
-       #     widget.destroy()
-
-       self.param_list = ['a', 'b', 'c', 'd','e','f']
-       for i,param in enumerate(self.param_list):
-           new_label = tk.Label(text=param)
-           new_label.grid(column=2*i+1, row=7)
-           new_box = tk.Entry(width=2)
-           new_box.grid(column=2*i+2, row=7)
-
-       # self.param_a = tk.Label(self.param_frame,text='a')
-       # self.param_a.pack(side=tk.LEFT)
-       # self.param_b = tk.Label(self.param_frame, text='a')
-       # self.param_b.pack(side=tk.LEFT)
-       # self.param_c = tk.Label(self.param_frame, text='a')
-       # self.param_c.pack(side=tk.LEFT)
-
-       # self.params = tk.Label(text="parameters")
-       # self.params.place(relx=0.70, rely=0.45, anchor='nw')
-       #
-       # self.param_a = tk.Label(text='a')
-       # self.param_a.place(relx=0.80, rely=0.45, anchor='nw')
-       # self.param_a_input = tk.Entry(width=3)
-       # self.param_a_input.place(relx=0.85, rely=0.45, anchor='nw')
-       #
-       # self.param_b = tk.Label(text='b')
-       # self.param_b.place(relx=0.90, rely=0.45, anchor='nw')
-       # self.param_b_input = tk.Entry(width=3)
-       # self.param_b_input.place(relx=0.95, rely=0.45, anchor='nw')
-
-       # log checkbox
-       self.is_log = tk.Label(text="log plot")
-       self.is_log.grid(column=1, row=9)
-       # self.is_log.place(relx=0.70, rely=0.55, anchor='nw')
-       self.is_log_check_var = tk.IntVar()
-       self.is_log_check = tk.Checkbutton(variable=self.is_log_check_var)
-       self.is_log_check.grid(column=1, row=10)
-       # self.is_log_check.place(relx=0.80, rely=0.55, anchor='nw')
-
-       # plot button
-       # plot_button = tk.Button(text = "Plot!", width = 10)
-       # plot_button.place(relx = 0.80, rely = 0.65, anchor = 'nw')
-       # cb_input = dist_cb.get()
-       # dist_cb.bind('<<ComboboxSelected>>', self.switch_plot)
-       # plot_button["command"] = lambda plot=cb_input: self.switch_plot(plot)
-
-       # self.switch_plot(cb_input)
-
-       # self.quit = tk.Button(self.sideBar, text="QUIT", fg="red", command=self.master.destroy,)
-       # self.quit.pack(side="bottom", fill=tk.X)
+        # log checkbox
+        self.is_log = tk.Label(text="log plot")
+        self.is_log.grid(column=1, row=5)
+        # self.is_log.place(relx=0.70, rely=0.55, anchor='nw')
+        self.is_log_check_var = tk.IntVar()
+        self.is_log_check = tk.Checkbutton(variable=self.is_log_check_var)
+        self.is_log_check.grid(column=2, row=5)
+        # self.is_log_check.place(relx=0.80, rely=0.55, anchor='nw')
 
     def switch_plot(self,plot):
 
-        for widget in self.mainView.winfo_children():
-            widget.destroy()
-
-        frame = tk.Frame(self.mainView)
-
         # add canvas for mat plot
         fig = Figure(figsize=(5, 4), dpi=100)
-
-        # #plot the apropriate distribution
-        # if plot == "normal":
-        #     mu = 0
-        #     variance = 1
-        #     sigma = math.sqrt(variance)
-        #     x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
-        #     y = stats.norm.pdf(x, mu, sigma)
-        #
-        #
-        #     # make an image plot
-        #     ax =  fig.add_subplot(111)
-        #     ax.plot(x,y)
-        #
-        # elif plot == "uniform":
-        #     y = np.full(100,0.01)
-        #     ax = fig.add_subplot(111)
-        #     ax.plot(y)
-        #
-        # elif plot == "poison":
-        #     t = np.arange(0, 3, .01)
-        #     y = np.exp(-5)*np.power(5, t)/factorial(t)
-        #     ax = fig.add_subplot(111)
-        #     ax.plot(t,y)
-        #
-        # elif plot == "t":
-        #     mu = 0
-        #     variance = 1
-        #     sigma = math.sqrt(variance)
-        #     df = 2.74
-        #     x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
-        #     y = stats.t.pdf(x, df)
-        #     ax = fig.add_subplot(111)
-        #     ax.plot(x, y)
-        #
-        # elif plot == "beta":
-        #     mu = 0
-        #     variance = 1
-        #     sigma = math.sqrt(variance)
-        #     x = np.linspace(mu - 3 * sigma, mu + 3 * sigma, 100)
-        #     a = 2
-        #     b = 2
-        #     y = stats.beta.pdf(x,a,b, scale=100, loc=-50)
-        #     ax = fig.add_subplot(111)
-        #     ax.plot(x, y)
 
         a = 0
         b = 1
@@ -254,7 +185,6 @@ class d_player(tk.Frame):
             y = stats.norm.pdf(x, a, sigma)
             ax.plot(x, y, label="Normal Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "uniform":
             y = 1
@@ -265,7 +195,6 @@ class d_player(tk.Frame):
             ax.vlines(a, ymin=0, ymax=y, linewidth=4)
             ax.vlines(b, ymin=0, ymax=y, linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "poisson":
             # a: mu
@@ -274,7 +203,6 @@ class d_player(tk.Frame):
             y = np.exp(-a) * np.power(a, x) / factorial(x)
             ax.plot(x, y, label="Poisson Distribution", linewidth=5)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "beta":
             # a: alpha
@@ -283,7 +211,6 @@ class d_player(tk.Frame):
             y = beta.pdf(x, a, b, scale=100, loc=-50)
             ax.plot(x, y, label="Beta Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "binomial":
             # a: n
@@ -293,7 +220,6 @@ class d_player(tk.Frame):
             y = binom.pmf(x, a, b)
             ax.plot(x, y, label="Binomial Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "burr":
             # a: c
@@ -303,7 +229,6 @@ class d_player(tk.Frame):
             y = burr.pdf(x, a, b)
             ax.plot(x, y, label="Burr Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "chi-squared":
             # a: k (degrees of freedom)
@@ -312,7 +237,6 @@ class d_player(tk.Frame):
             y = chi2.pdf(x, df=a)
             ax.plot(x, y, label="Chi-squared distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "exponential":
             # a: mu
@@ -321,7 +245,6 @@ class d_player(tk.Frame):
             y = ss.expon.pdf(x, a, b)
             ax.plot(x, y, label="Exponential Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "extreme value":
             # a: ???
@@ -332,7 +255,6 @@ class d_player(tk.Frame):
             y = gumbel_l.pdf(x)
             ax.plot(x, y, label="Extreme Value Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "f":
             # a: v1
@@ -343,7 +265,6 @@ class d_player(tk.Frame):
             y = f.pdf(x, a, b)
             ax.plot(x, y, label="F Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "gamma":
             # a: k
@@ -354,7 +275,6 @@ class d_player(tk.Frame):
             y = gamma.pdf(x, a)
             ax.plot(x, y, label="Gamma Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "generalized extreme value":
             # a: c
@@ -365,7 +285,6 @@ class d_player(tk.Frame):
             y = genextreme.pdf(x, a)
             ax.plot(x, y, label="Generalized Extreme Value Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "generalized pareto":
             # a: c
@@ -376,7 +295,6 @@ class d_player(tk.Frame):
             y = genpareto.pdf(x, a)
             ax.plot(x, y, label="Generalized Pareto Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "geometric":
             # a: p
@@ -387,7 +305,6 @@ class d_player(tk.Frame):
             y = geom.pmf(x, a)
             ax.plot(x, y, label="Geometric Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "half normal":
             # a: ??? No paremeters ???
@@ -398,7 +315,6 @@ class d_player(tk.Frame):
             y = halfnorm.pdf(x)
             ax.plot(x, y, label="Half-normal Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "hypergeometric":
             # a: M
@@ -412,7 +328,6 @@ class d_player(tk.Frame):
             y = rv.pmf(x)
             ax.plot(x, y, label="Hypergeometric Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "lognormal":
             # a: s
@@ -423,7 +338,6 @@ class d_player(tk.Frame):
             y = lognorm.pdf(x, a)
             ax.plot(x, y, label="Lognormal Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "negative binomial":
             # a: n
@@ -434,7 +348,6 @@ class d_player(tk.Frame):
             y = nbinom.pmf(x, a, b)
             ax.plot(x, y, label="Negative Binomial Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "noncentral f":
             # a: dfn
@@ -443,7 +356,6 @@ class d_player(tk.Frame):
             y = stats.f.cdf(x, a, b)
             ax.plot(x, y, label="Noncentral F Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "noncentral t":
             # a: df
@@ -465,7 +377,6 @@ class d_player(tk.Frame):
             y = ncx2.pdf(x, a, b)
             ax.plot(x, y, label="Noncentral Chi-squared Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "rayleigh":
             # a: ??? No parameters ???
@@ -476,7 +387,6 @@ class d_player(tk.Frame):
             y = rayleigh.pdf(x)
             ax.plot(x, y, label="Rayleigh Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "stable":
             # a: alpha
@@ -487,7 +397,6 @@ class d_player(tk.Frame):
             y = levy_stable.pdf(x, a, b)
             ax.plot(x, y, label="Stable Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "t":
             # a: df
@@ -498,7 +407,6 @@ class d_player(tk.Frame):
             y = t_dist.pdf(x, a)
             ax.plot(x, y, label="t Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "discrete uniform":
             # a: low
@@ -511,7 +419,6 @@ class d_player(tk.Frame):
             ax.plot(x, y, label="Discrete Uniform Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
             ax.vlines(x, 0, randint.pmf(x, a, b))
-            ax.set_xlim([xmin, xmax])
 
         elif plot == "weibull":
             # a: c
@@ -522,20 +429,19 @@ class d_player(tk.Frame):
             y = weibull_min.pdf(x, a)
             ax.plot(x, y, label="Weibull Distribution", linewidth=4)
             ax.grid(alpha=0.4, linestyle='--')
-            ax.set_xlim([xmin, xmax])
 
         else:
             t = np.arange(0, 3, .01)
             ax = fig.add_subplot(111)
             ax.plot(np.sin(2*np.pi*t))
 
+        #configure axex
+        ax.set_xlim([int(self.x_from_input.get()), int(self.x_to_input.get())])
+
+        #draw canvas
         canvas = FigureCanvasTkAgg(fig)  # A tk.DrawingArea.
         canvas.draw()
         canvas.get_tk_widget().grid(column=0,row=0)
-        # canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH,expand=1)
-
-        # frame.pack(fill=tk.BOTH)
-        # frame.grid(row=0, column=0, sticky="nsew")
 
 def main():
     root = tk.Tk()
