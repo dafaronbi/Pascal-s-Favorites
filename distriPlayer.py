@@ -73,6 +73,36 @@ d_to_param = {
 "weibull":{'c':2,'scale':1}
 }
 
+#x limit dictionary
+d_to_xlim = {
+"normal":[0,1],
+"uniform":[0,20],
+"poison":[0,1],
+"beta":[0,1],
+"binomial":[0,1],
+"burr":[0,1],
+"chi-squared":[0,1],
+"exponential":[0,1],
+"extreme value":[0,1],
+"f":[0,1],
+"gamma":[0,1],
+"generalized extreme value":[0,1],
+"generalized pareto":[0,1],
+"geometric":[0,1],
+"half normal":[0,1],
+"hypergeometric":[0,1],
+"lognormal":[0,1],
+"negative binomial":[0,1],
+"noncentral f":[0,1],
+"noncentral t":[0,1],
+"noncentral chi-squared":[0,1],
+"rayleigh":[0,1],
+"stable":[0,1],
+"t":[0,1],
+"discret uniform":[0,1],
+"weibull":[0,1]
+}
+
 class d_player(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -104,6 +134,12 @@ class d_player(tk.Frame):
             self.param_entry[lab].insert(0, self.param_dic[lab])
             self.param_entry[lab].grid(column=2 * i + 3, row=4)
 
+        #set x range values
+        self.x_from_input.delete(0, 'end')
+        self.x_from_input.insert(0, d_to_xlim[self.dist_cb.get()][0])
+        self.x_to_input.delete(0, 'end')
+        self.x_to_input.insert(0, d_to_xlim[self.dist_cb.get()][1])
+
         #creat plot button
         self.plot_button = tk.Button(text="Plot!", width=10)
         self.plot_button.grid(column=1, row=6)
@@ -133,13 +169,11 @@ class d_player(tk.Frame):
         self.x_from = tk.Label(text="from")
         self.x_from.grid(column=2,row=3)
         self.x_from_input = tk.Entry(width=3)
-        self.x_from_input.insert(0,0)
         self.x_from_input.grid(column=3, row=3)
 
         self.x_to = tk.Label(text="to")
         self.x_to.grid(column=4, row=3)
         self.x_to_input = tk.Entry(width=3)
-        self.x_to_input.insert(0,1)
         self.x_to_input.grid(column=5, row=3)
 
         #parameters
