@@ -196,7 +196,12 @@ class d_player(tk.Frame):
 
         ax = fig.add_subplot(111)
 
+        #update dictionary from click
+        for i, lab in enumerate(self.param_dic):
+            self.param_dic[lab] = float(self.param_entry[lab].get())
+
         if plot == "normal":
+            print(self.param_dic['mu'])
             a = self.param_dic['mu']
             sigma = self.param_dic['sigma']
             x = np.linspace(a - 3 * sigma, a + 3 * sigma, 100)
