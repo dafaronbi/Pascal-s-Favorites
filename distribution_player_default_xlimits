@@ -195,6 +195,10 @@ class d_player(tk.Frame):
         fig = Figure(figsize=(5, 4), dpi=100)
 
         ax = fig.add_subplot(111)
+        
+        #update dictionary from click
+        for i, lab in enumerate(self.param_dic):
+            self.param_dic[lab] = float(self.param_entry[lab].get())
 
         if plot == "normal":
             a = self.param_dic['mu']
