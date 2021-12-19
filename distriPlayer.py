@@ -157,10 +157,6 @@ class d_player(tk.Frame):
         self.x_to_input.delete(0, 'end')
         self.x_to_input.insert(0, d_to_xlim[self.dist_cb.get()][1])
 
-        # log checkbox
-        self.is_log_check_var = tk.IntVar()
-        self.is_log_check = tk.Checkbutton(variable=self.is_log_check_var)
-        self.is_log_check.grid(column=2, row=5)
 
         #creat plot button
         self.plot_button = tk.Button(text="Plot!", width=10)
@@ -197,6 +193,9 @@ class d_player(tk.Frame):
         # log checkbox
         self.is_log = tk.Label(text="log plot")
         self.is_log.grid(column=1, row=5)
+        self.is_log_check_var = tk.IntVar()
+        self.is_log_check = tk.Checkbutton(variable=self.is_log_check_var)
+        self.is_log_check.grid(column=2, row=5)
 
     def switch_plot(self,plot):
 
