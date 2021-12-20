@@ -1,19 +1,17 @@
-#import needed libraries
+# import needed libraries
 import tkinter as tk
 from tkinter import Checkbutton, ttk
 from tkinter.constants import BOTTOM, RIGHT
 import numpy as np
-import matplotlib as mpl
-# import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.figure import Figure
 import math
 import scipy.stats as stats
 from scipy.special import factorial
 
-#Import specific distributions
-#Some inconsistencies between importing scipy as ss vs. stats
-import scipy.stats as ss
+# import specific distributions
+from scipy.stats import norm
+from scipy.stats import expon
 from scipy.special import factorial
 from scipy.stats import beta
 from scipy.stats import binom
@@ -37,14 +35,14 @@ from scipy.stats import levy_stable
 from scipy.stats import randint
 from scipy.stats import weibull_min
 
-#Array of all different types of distributions
+# array of all different types of distributions
 distributions = ["normal","uniform","poisson","beta","binomial","burr","chi-squared","exponential",
                  "extreme value","f","gamma","generalized extreme value","generalized pareto",
                  "geometric","half normal","hypergeometric","lognormal","negative binomial",
                  "noncentral f","noncentral t","noncentral chi-squared","rayleigh","stable",
                  "t","discrete uniform","weibull"]
 
-#dictionary to retreive parameter dictionary from distribution name
+# dictionary to retreive parameter dictionary from distribution name
 d_to_param = {
 "normal":{'mu': 0, 'sigma': 1},
 "uniform":{'a': 0, 'b':1},
@@ -74,7 +72,7 @@ d_to_param = {
 "weibull":{'c':2,'scale':1}
 }
 
-#x limit dictionary
+# x limit dictionary
 d_to_xlim = {
 "normal":[-3.5,3.5],
 "uniform":[-0.25,1.25],
@@ -111,21 +109,21 @@ class d_player(tk.Frame):
         self.create_widgets()
     
     def get_dist(self,event):
-        #get selected value
+        # get selected value
         self.dist_cb.get()
 
-        #remove old parameter labels
+        # remove old parameter labels
         for label in self.param_label:
             self.param_label[label].grid_remove()
 
-        #remove old entries
+        # remove old entries
         for entry in self.param_entry:
             self.param_entry[entry].grid_remove()
 
-        #set dictionary of parameters
+        # set dictionary of parameters
         self.param_dic = d_to_param[self.dist_cb.get()]
 
-        #update parameters gui
+        # update parameters gui
         self.param_entry = {}
         self.param_label = {}
         for i, lab in enumerate(self.param_dic):
@@ -135,10 +133,10 @@ class d_player(tk.Frame):
             self.param_entry[lab].insert(0, self.param_dic[lab])
             self.param_entry[lab].grid(column=2 * i + 3, row=4)
         
-        #set distionary for x range
+        # set distionary for x range
         self.x_range = d_to_xlim[self.dist_cb.get()]
 
-        #update parameters gui
+        # update parameters gui
         self.x_from = tk.Label(text="from")
         self.x_from.grid(column=2,row=3)
         self.x_from_input = tk.Entry(width=3)
@@ -151,14 +149,14 @@ class d_player(tk.Frame):
         self.x_to_input.insert(0, self.x_range[1])
         self.x_to_input.grid(column=5, row=3)
 
-        #set x range values
+        # set x range values
         self.x_from_input.delete(0, 'end')
         self.x_from_input.insert(0, d_to_xlim[self.dist_cb.get()][0])
         self.x_to_input.delete(0, 'end')
         self.x_to_input.insert(0, d_to_xlim[self.dist_cb.get()][1])
 
 
-        #creat plot button
+        # creat plot button
         self.plot_button = tk.Button(text="Plot!", width=10)
         self.plot_button.grid(column=1, row=6)
         self.plot_button["command"] = lambda plot=self.dist_cb.get(): self.switch_plot(plot)
@@ -179,12 +177,12 @@ class d_player(tk.Frame):
         self.dist_cb.bind('<<ComboboxSelected>>', self.get_dist)
         self.dist_cb.grid(column=1,row=0)
 
-        #x range
+        # x range
         self.x_range = tk.Label(text="x")
         self.x_range.grid(column=1,row=3)
         self.x_range = []
 
-        #parameters
+        # parameters
         self.param_lbl = tk.Label(text="parameters")
         self.param_lbl.grid(column=1,row=4)
         self.param_entry = {}
@@ -204,7 +202,7 @@ class d_player(tk.Frame):
 
         ax = fig.add_subplot(111)
 
-        #update dictionary from click
+        # update dictionary from click
         for lab in self.param_dic:
             self.param_dic[lab] = float(self.param_entry[lab].get())
 
@@ -227,7 +225,7 @@ class d_player(tk.Frame):
         if plot == "normal":
             a = self.param_dic['mu']
             sigma = self.param_dic['sigma']
-            y = stats.norm.pdf(x, a, sigma)
+            y = norm.pdf(x, a, sigma)
             ax.plot(x, y, label="Normal Distribution", linewidth=lw)
             ax.grid(alpha=0.4, linestyle='--')
 
@@ -279,7 +277,7 @@ class d_player(tk.Frame):
         elif plot == "exponential":
             a = self.param_dic['location']
             b = self.param_dic['lambda']
-            y = ss.expon.pdf(x, a, b)
+            y = expon.pdf(x, a, b)
             ax.plot(x, y, label="Exponential Distribution", linewidth=lw)
             ax.grid(alpha=0.4, linestyle='--')
 
@@ -423,14 +421,14 @@ class d_player(tk.Frame):
             y = np.sin(2*np.pi*x)
             ax.plot(x,y)
 
-        #configure log-scale
+        # configure log-scale
         if self.is_log_check_var.get() == 1:
             ax.set_yscale('log')
         
-        #configure axex
+        # configure axex
         ax.set_xlim([float(self.x_from_input.get()), float(self.x_to_input.get())])
 
-        #draw canvas
+        # draw canvas
         canvas = FigureCanvasTkAgg(fig)  # A tk.DrawingArea.
         canvas.draw()
         canvas.get_tk_widget().grid(column=0,row=7)
