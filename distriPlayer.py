@@ -208,9 +208,15 @@ class d_player(tk.Frame):
         for lab in self.param_dic:
             self.param_dic[lab] = float(self.param_entry[lab].get())
 
+
         # update x range from click
         self.x_range[0] = float(self.x_from_input.get())
         self.x_range[1] = float(self.x_to_input.get())
+
+        # check if invalid x range
+        if self.x_range[0] > self.x_range[1]:
+            tk.messagebox.showwarning(title="ERROR", message="Please input a valid x range")
+            return
 
         # x range
         x = np.linspace(self.x_range[0], self.x_range[1], 100)
